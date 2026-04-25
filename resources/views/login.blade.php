@@ -1,121 +1,205 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Login</title>
+
     <style>
-        body {
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* BACKGROUND */
+
+        body {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(-45deg, #667eea, #764ba2, #6b8cff, #8e44ad);
-            background-size: 400% 400%;
-            animation: gradientMove 10s ease infinite;
-            font-family: Arial, sans-serif;
         }
 
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        /* CONTAINER */
 
-        .card {
-            width: 320px;
-            padding: 40px;
-            border-radius: 15px;
+        .container {
+            display: flex;
+            width: 900px;
+            height: 520px;
             background: white;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            text-align: center;
-            animation: float 3s ease-in-out infinite;
+            border-radius: 15px;
+            overflow: hidden;
+            animation: fadeIn 1s ease;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        h2 {
+        /* LEFT IMAGE SIDE */
+
+        .left {
+            width: 50%;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .left img {
+            width: 80%;
+        }
+
+        /* RIGHT SIDE */
+
+        .right {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 50px;
+        }
+
+        /* TEXT */
+
+        .right h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .right p {
+            font-size: 15px;
             margin-bottom: 25px;
+            color: #666;
+        }
+
+        /* FORM */
+
+        .right h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
             color: #333;
         }
 
         .input-group {
-            position: relative;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            border: none;
-            border-bottom: 2px solid #ccc;
-            outline: none;
-            font-size: 14px;
-            transition: 0.3s;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+            transition: .3s;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
         }
 
         input:focus {
-            border-bottom: 2px solid #667eea;
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            outline: none;
         }
+
+        /* BUTTON */
 
         button {
             width: 100%;
-            padding: 10px;
+            padding: 14px;
             border: none;
-            border-radius: 25px;
-            background: #667eea;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: .3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         button:hover {
-            background: #5a67d8;
-            transform: scale(1.05);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
-        a {
-            text-decoration: none;
+        /* LINK */
+
+        .link {
+            margin-top: 15px;
             font-size: 14px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .link a {
             color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
         }
 
         .error {
             color: red;
-            font-size: 14px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
+
 <body>
 
-<div class="card">
-    <h2>Login</h2>
+    <div class="container">
 
-    @if(session('error'))
-        <p class="error">{{ session('error') }}</p>
-    @endif
+        <!-- LEFT IMAGE -->
 
-    <form method="POST" action="/login">
-        @csrf
-
-        <div class="input-group">
-            <input type="email" name="email" placeholder="Email" required>
+        <div class="left">
+            <img src="https://img.freepik.com/free-vector/job-interview-concept-illustration_114360-24598.jpg">
         </div>
 
-        <div class="input-group">
-            <input type="password" name="password" placeholder="Password" required>
+        <!-- RIGHT SIDE -->
+
+        <div class="right">
+
+            <h1>Choose Your Career </h1>
+            <p>Find internships and connect with top companies to start your professional journey.</p>
+
+            <h2>Login</h2>
+
+            @if(session('error'))
+            <p class="error">{{ session('error') }}</p>
+            @endif
+
+            <form method="POST" action="/login">
+                @csrf
+
+                <div class="input-group">
+                    <input type="email" name="email" placeholder="Email">
+                </div>
+
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Password">
+                </div>
+
+                <button type="submit">Login</button>
+
+            </form>
+
+            <div class="link">
+                <a href="/register">Create Account</a>
+            </div>
+
         </div>
 
-        <button type="submit">Login</button>
-    </form>
-
-    <br>
-    <a href="/register">Create Account</a>
-</div>
+    </div>
 
 </body>
+
 </html>

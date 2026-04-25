@@ -1,16 +1,38 @@
-<form action="{{ route('company.search') }}" method="GET" 
-      style="display:flex;gap:10px;">
+@extends('layouts.app')
 
-    <input type="text" 
-           name="keyword"
-           placeholder="Search by skill or location..."
-           value="{{ request('keyword') }}"
-           style="flex:1;padding:12px;border-radius:6px;border:1px solid #ccc;">
+@section('content')
 
-    <button type="submit"
-            style="background:#007bff;color:white;
-                   padding:10px 20px;border:none;border-radius:6px;">
-        Search
-    </button>
+<div class="container mt-4">
 
-</form>
+    <h3>Search Results</h3>
+
+    @if($students->count() > 0)
+
+        @foreach($students as $student)
+
+        <div class="card p-4 mb-4">
+
+            <h4>{{ $student->name }}</h4>
+
+            <hr>
+
+            <p><strong>Email:</strong> {{ $student->user->email ?? 'N/A' }}</p>
+            <p><strong>Address:</strong> {{ $student->address }}</p>
+
+            <p><strong>Skills:</strong> 
+                {{ is_array($student->skills) ? implode(', ', $student->skills) : $student->skills }}
+            </p>
+
+        </div>
+
+        @endforeach
+
+    @else
+
+        <p>No students found</p>
+
+    @endif
+
+</div>
+
+@endsection

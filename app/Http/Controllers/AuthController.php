@@ -9,20 +9,24 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    // ===============================
     // Show Register Form
+    // ===============================
     public function showRegister()
     {
-         return view('register');
+        return view('register');
     }
 
-    // Register User
+    // ===============================
+    // Register User (Student & Company Only)
+    // ===============================
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'role' => 'required'
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+            'role' => 'required|in:student,company'
         ]);
 
         User::create([
@@ -32,33 +36,55 @@ class AuthController extends Controller
             'role' => $request->role
         ]);
 
-        return redirect('/login')->with('success', 'Registration Successful');
+        return redirect('/login')->with('success', 'Registration Successful. Please Login.');
     }
 
+    // ===============================
     // Show Login Form
+    // ===============================
     public function showLogin()
     {
-         return view('login');
+        return view('login');
     }
 
-    // Login User
+    // ===============================
+    // Login User (Student, Company, Admin)
+    // ===============================
     public function login(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
 
-            if (Auth::user()->role == 'student') {
+            $user = Auth::user();
+
+            // STUDENT
+            if ($user->role == 'student') {
                 return redirect('/student/dashboard');
-            } else {
+            }
+
+            // COMPANY
+            if ($user->role == 'company') {
                 return redirect('/company/dashboard');
+            }
+
+            // ADMIN
+            if ($user->role == 'admin') {
+                return redirect('/admin/dashboard');
             }
         }
 
-        return back()->with('error', 'Invalid Credentials');
+        return back()->with('error', 'Invalid Email or Password');
     }
 
+    // ===============================
     // Logout
+    // ===============================
     public function logout()
     {
         Auth::logout();

@@ -15,8 +15,6 @@ background:#f4f6f9;
 display:flex;
 }
 
-/* SIDEBAR */
-
 .sidebar{
 width:250px;
 background:#1e293b;
@@ -43,22 +41,10 @@ text-align:center;
 margin-bottom:30px;
 }
 
-.profile-top img{
-width:100px;
-height:100px;
-border-radius:50%;
-object-fit:cover;
-border:3px solid white;
-}
-
-/* MAIN */
-
 .main{
 flex:1;
 padding:30px;
 }
-
-/* SEARCH */
 
 .search-title{
 font-size:22px;
@@ -77,7 +63,6 @@ flex:1;
 padding:12px;
 border-radius:6px;
 border:1px solid #ccc;
-font-size:14px;
 }
 
 .search-box button{
@@ -87,14 +72,7 @@ border:none;
 padding:12px 25px;
 border-radius:6px;
 cursor:pointer;
-font-size:14px;
 }
-
-.search-box button:hover{
-background:#0f5bd3;
-}
-
-/* CARDS */
 
 .cards{
 display:grid;
@@ -109,12 +87,6 @@ border-radius:10px;
 box-shadow:0 5px 10px rgba(0,0,0,0.1);
 }
 
-.card h3{
-margin-top:0;
-}
-
-/* BADGE */
-
 .badge{
 padding:4px 8px;
 border-radius:5px;
@@ -122,15 +94,9 @@ font-size:12px;
 color:white;
 }
 
-.paid{
-background:green;
-}
-
-.unpaid{
-background:red;
-}
-
-/* BUTTONS */
+.paid{background:green;}
+.unpaid{background:red;}
+.closed{background:#dc3545;}
 
 .apply-btn{
 background:#007bff;
@@ -142,48 +108,51 @@ cursor:pointer;
 margin-top:10px;
 }
 
-.apply-btn:hover{
-background:#0056b3;
+.popup{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+justify-content:center;
+align-items:center;
 }
 
-.applied{
-background:gray;
-padding:8px 15px;
-border-radius:6px;
+.popup-box{
+background:white;
+padding:30px;
+border-radius:10px;
+width:400px;
+text-align:center;
+}
+
+.close-btn{
+background:red;
 color:white;
-display:inline-block;
-margin-top:10px;
+border:none;
+padding:10px 20px;
+margin-top:20px;
+cursor:pointer;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-<!-- SIDEBAR -->
-
 <div class="sidebar">
 
 <div class="profile-top">
-
-<a href="{{ route('student.profile') }}">
-
-<img src="{{ auth()->user()->profile_photo 
-? asset('storage/'.auth()->user()->profile_photo) 
-: 'https://via.placeholder.com/100' }}">
-
-</a>
-
-<h3>{{ auth()->user()->name }}</h3>
-
+<h3>{{ Auth::user()->name }}</h3>
 </div>
 
 <a href="{{ route('student.dashboard') }}">Dashboard</a>
-
 <a href="{{ route('student.profile') }}">My Profile</a>
+<a href="{{ route('student.applications') }}">My Applications</a>
 
 <form method="POST" action="{{ route('logout') }}">
 @csrf
@@ -194,29 +163,14 @@ Logout
 
 </div>
 
-
-<!-- MAIN -->
-
 <div class="main">
 
-<div class="search-title">
-🔎 Search Internships
-</div>
+<div class="search-title">🔎 Search Internships</div>
 
 <form method="GET" action="{{ route('student.search') }}" class="search-box">
-
-<input 
-type="text" 
-name="search" 
-placeholder="Search by skills, location, company..."
->
-
+<input type="text" name="search" placeholder="Search by skills, location, company...">
 <button type="submit">Search</button>
-
 </form>
-
-
-<!-- INTERNSHIPS -->
 
 <div class="cards">
 
@@ -226,50 +180,48 @@ placeholder="Search by skills, location, company..."
 
 <h3>{{ $internship->title }}</h3>
 
-<p><strong>Company:</strong> {{ $internship->company_name }}</p>
+<p><strong>Company:</strong> {{ $internship->company->company_name ?? 'N/A' }}</p>
 
 <p><strong>Skills:</strong> {{ $internship->required_skills }}</p>
 
 <p><strong>Duration:</strong> {{ $internship->duration }}</p>
-
 <p><strong>Location:</strong> {{ $internship->address }}</p>
+<p><strong>Deadline:</strong> {{ \Carbon\Carbon::parse($internship->application_deadline)->format('d M Y') }}</p>
+<p><strong>Spots Available:</strong> {{ $internship->spots_available }}</p>
 
-<p><strong>Deadline:</strong> {{ $internship->application_deadline }}</p>
-
-<p><strong>Spots:</strong> {{ $internship->spots_available }}</p>
-
+@php
+$deadlinePassed = \Carbon\Carbon::parse($internship->application_deadline)->isPast();
+$spotsFull = $internship->spots_available <= 0;
+@endphp
 
 @if($internship->stipend)
-<span class="badge paid">Paid - ₹{{ $internship->stipend }}</span>
+<span class="badge paid">Paid ₹{{ $internship->stipend }}</span>
 @else
 <span class="badge unpaid">Unpaid</span>
 @endif
 
+<br><br>
 
-@php
-$applied = \App\Models\Application::where('internship_id',$internship->id)
-->where('student_id',$student->id)
-->exists();
-@endphp
+@if($deadlinePassed || $spotsFull)
 
-
-@if($applied)
-
-<span class="applied">Already Applied</span>
+<span class="badge closed">Closed</span>
 
 @else
 
-<form action="{{ route('apply.internship',$internship->id) }}" method="POST">
+<form id="applyForm{{ $internship->id }}" 
+      action="{{ route('student.apply',$internship->id) }}" 
+      method="POST">
 @csrf
 
-<button class="apply-btn">
+<button type="button"
+        onclick="checkSkill('{{ $internship->id }}')"
+        class="apply-btn">
 Apply Internship
 </button>
 
 </form>
 
 @endif
-
 
 </div>
 
@@ -284,6 +236,59 @@ Apply Internship
 </div>
 
 </div>
+
+<!-- POPUP -->
+
+<div id="skillPopup" class="popup">
+
+<div class="popup-box">
+
+<h2 style="color:red;">Skill Not Matched</h2>
+
+<p id="popupMessage"></p>
+
+<button onclick="closePopup()" class="close-btn">Close</button>
+
+</div>
+
+</div>
+
+<script>
+
+function checkSkill(id){
+
+fetch("/student/check-skill/" + id)
+.then(response => response.json())
+.then(data => {
+
+if(data.status === "success"){
+
+document.getElementById("applyForm"+id).submit();
+
+}
+else{
+
+document.getElementById("popupMessage").innerHTML =
+data.message;
+
+document.getElementById("skillPopup").style.display="flex";
+
+}
+
+})
+.catch(error => {
+
+alert("Something went wrong");
+
+});
+
+}
+
+function closePopup(){
+document.getElementById("skillPopup").style.display="none";
+}
+
+</script>
 
 </body>
 </html>

@@ -1,114 +1,200 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Register</title>
+
     <style>
-        body {
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(120deg, #89f7fe, #66a6ff);
-            font-family: Arial, sans-serif;
         }
 
         .container {
-            width: 380px;
+            display: flex;
+            width: 900px;
+            height: 540px;
             background: white;
-            padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            animation: slideIn 1s ease;
+            overflow: hidden;
+
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .left {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
+        .left img {
+            width: 100%;
+        }
+
+        .right {
+            width: 50%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .right h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
             color: #333;
         }
 
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            transition: 0.3s;
+        .right p {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #666;
         }
 
-        input:focus, select:focus {
-            border-color: #66a6ff;
-            box-shadow: 0 0 5px rgba(102,166,255,0.5);
+        .right h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            transition: .3s;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
             outline: none;
         }
 
         button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 25px;
-            background: #66a6ff;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: .3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         button:hover {
-            background: #4f8df5;
-            transform: scale(1.05);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
         .footer {
+            margin-top: 12px;
+            font-size: 14px;
             text-align: center;
-            margin-top: 15px;
         }
 
-        a {
+        .footer a {
+            color: #667eea;
             text-decoration: none;
-            color: #66a6ff;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
             font-size: 14px;
+        }
+
+        .error {
+            background: #ffdddd;
+            color: #d8000c;
+        }
+
+        .success {
+            background: #ddffdd;
+            color: #4f8a10;
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h2>Create Account</h2>
+    <div class="container">
 
-    <form method="POST" action="/register">
-        @csrf
+        <div class="left">
+            <img src="https://img.freepik.com/free-vector/sign-up-concept-illustration_114360-7965.jpg">
+        </div>
 
-        <input type="text" name="name" placeholder="Full Name" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
+        <div class="right">
 
-        <select name="role" required>
-            <option value="">Select Role</option>
-            <option value="student">Student</option>
-            <option value="company">Company</option>
-        </select>
+            <h1>Start Your Career</h1>
+            <p>Create an account and explore internship opportunities.</p>
 
-        <button type="submit">Register</button>
-    </form>
+            <h2>Create Account</h2>
 
-    <div class="footer">
-        <a href="/login">Already have an account?</a>
+            @if(session('success'))
+            <div class="alert success">
+                {{ session('success') }}
+            </div>
+            @endif
+
+            @if($errors->any())
+            <div class="alert error">
+                <ul>
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
+
+                <input type="text" name="name" placeholder="Full Name" required>
+
+                <input type="email" name="email" placeholder="Email" required>
+
+                <input type="password" name="password" placeholder="Password" required>
+
+                <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
+
+                <select name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="student">Student</option>
+                    <option value="company">Company</option>
+                </select>
+
+                <button type="submit">Register</button>
+
+            </form>
+
+            <div class="footer">
+                <a href="{{ route('login') }}">Already have an account?</a>
+            </div>
+
+        </div>
+
     </div>
-</div>
 
 </body>
+
 </html>

@@ -49,23 +49,43 @@
 </head>
 <body>
 
+
 <div class="navbar">
     <div>
-        <strong>Internship Portal</strong>
+        <strong>Smart Internship and Skill Recommendation System</strong>
     </div>
 
     <div>
-        <a href="{{ route('student.dashboard') }}">Dashboard</a>
-        <a href="{{ route('student.profile') }}">Profile</a>
 
-        <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+        {{-- STUDENT NAVBAR --}}
+        @if(Auth::user()->role == 'student')
+
+            <a href="{{ route('student.dashboard') }}">Dashboard</a>
+            <a href="{{ route('student.profile') }}">Profile</a>
+
+        @endif
+
+
+        {{-- COMPANY NAVBAR --}}
+        @if(Auth::user()->role == 'company')
+
+            <a href="{{ route('company.dashboard') }}">Dashboard</a>
+            
+
+        @endif
+
+
+        <!-- <form method="POST" action="{{ route('logout') }}" style="display:inline;">
             @csrf
             <button type="submit" style="background:none;border:none;color:white;">
                 Logout
             </button>
-        </form>
+        </form> -->
+
     </div>
 </div>
+
+
 
 <div class="container">
     @yield('content')
