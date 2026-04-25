@@ -516,16 +516,11 @@ textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.65; 
             <i class="fa-solid fa-tags"></i> Technical Skills
         </label>
 
-       <textarea name="skills"
-    class="form-control"
-    rows="4"
-    placeholder="e.g. Laravel, PHP, MySQL, JavaScript, React">
-
-{{ isset($profile) && $profile->skills 
-    ? (is_array($profile->skills) ? implode(', ', $profile->skills) : $profile->skills) 
-    : '' }}
-
-</textarea>
+      <textarea name="skills" 
+class="form-control" 
+rows="4"
+placeholder="e.g. Laravel, PHP, MySQL, JavaScript, React">{{ 
+isset($profile->skills) ? $profile->skills : '' }}</textarea>
     </div>
 </div>
     
@@ -595,11 +590,11 @@ textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.65; 
             <div class="section-title"><i class="fa-solid fa-award"></i> Certifications</div>
 
             <div id="certificationContainer">
-                @php
-                    $certifications = isset($profile->certifications)
-                        ? explode(',', $profile->certifications)
-                        : [''];
-                @endphp
+              @php
+    $certifications = !empty($profile->certifications)
+        ? explode(',', $profile->certifications)
+        : [''];
+@endphp
 
                 @foreach($certifications as $index => $cert)
                 <div class="cert-item">

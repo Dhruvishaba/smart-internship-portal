@@ -57,66 +57,78 @@ class StudentController extends Controller
     }
 
     // =========================
-    // UPDATE PROFILE
+    // UPDATE PROFILE (FIXED)
     // =========================
-   public function updateProfile(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'mobile' => 'required|string|max:15',
-        'email' => 'required|email|unique:users,email,' . Auth::id(),
-    ]);
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'mobile' => 'required|string|max:15',
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
+        ]);
 
-    $user = Auth::user();
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->save();
+        $user = Auth::user();
 
-    // Convert skills string to lowercase, comma-separated
-    $skills = $request->skills
-        ? implode(',', array_map('trim', explode(',', strtolower($request->skills))))
-        : '';
+        // Update user table
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
 
-    Student::updateOrCreate(
-        ['user_id' => $user->id],
-        [
-            'name' => $request->name,
-            'gender' => $request->gender,
-            'address' => $request->address,
-            'mobile' => $request->mobile,
-            'dob' => $request->dob,
-            'skills' => $skills,
+        // ✅ Skills (textarea → string normalize)
+        $skills = $request->skills
+            ? implode(',', array_map('trim', explode(',', strtolower($request->skills))))
+            : null;
 
-            // ===== SSC =====
-            'ssc_medium' => $request->ssc_medium,
-            'ssc_school' => $request->ssc_school,
-            'ssc_board' => $request->ssc_board,
-            'ssc_percentage' => $request->ssc_percentage,
+        // ✅ Certifications (ARRAY → STRING)
+        $certifications = is_array($request->certifications)
+            ? implode(',', array_filter($request->certifications))
+            : null;
 
-            // ===== HSC =====
-            'hsc_medium' => $request->hsc_medium,
-            'hsc_school' => $request->hsc_school,
-            'hsc_board' => $request->hsc_board,
-            'hsc_percentage' => $request->hsc_percentage,
+        // ✅ Internship position logic
+        $internPosition = $request->is_interning == 1
+            ? $request->intern_position
+            : null;
 
-            // ===== Current Program =====
-            'current_program' => $request->current_program,
-            'current_semester' => $request->current_semester,
-            'current_cgpa' => $request->current_cgpa,
+        Student::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name' => $request->name,
+                'gender' => $request->gender,
+                'address' => $request->address,
+                'mobile' => $request->mobile,
+                'dob' => $request->dob,
+                'skills' => $skills,
 
-            // ===== Certifications / Seminars / Achievements =====
-            'certifications' => $request->certifications,
-            'seminars' => $request->seminars,
-            'achievements' => $request->achievements,
+                // ===== SSC =====
+                'ssc_medium' => $request->ssc_medium,
+                'ssc_school' => $request->ssc_school,
+                'ssc_board' => $request->ssc_board,
+                'ssc_percentage' => $request->ssc_percentage,
 
-            // ===== Internship Status =====
-            'is_interning' => $request->is_interning,
-            'intern_position' => $request->intern_position,
-        ]
-    );
+                // ===== HSC =====
+                'hsc_medium' => $request->hsc_medium,
+                'hsc_school' => $request->hsc_school,
+                'hsc_board' => $request->hsc_board,
+                'hsc_percentage' => $request->hsc_percentage,
 
-    return back()->with('success', 'Profile Updated Successfully');
-}
+                // ===== Current =====
+                'current_program' => $request->current_program,
+                'current_semester' => $request->current_semester,
+                'current_cgpa' => $request->current_cgpa,
+
+                // ✅ FIXED FIELDS
+                'certifications' => $certifications,
+                'seminars' => $request->seminars,
+                'achievements' => $request->achievements,
+
+                // ===== Internship =====
+                'is_interning' => $request->is_interning,
+                'intern_position' => $internPosition,
+            ]
+        );
+
+        return back()->with('success', 'Profile Updated Successfully');
+    }
 
     // =========================
     // SEARCH
@@ -145,7 +157,7 @@ class StudentController extends Controller
     }
 
     // =========================
-    // CHECK SKILL (AJAX)
+    // CHECK SKILL
     // =========================
     public function checkSkill($id)
     {

@@ -101,11 +101,8 @@ Route::middleware(['auth'])->prefix('company')->group(function () {
     Route::get('/applications', [ApplicationController::class, 'companyApplications'])
         ->name('company.applications');
 
-    Route::post('/accept/{id}', [CompanyController::class, 'acceptApplication'])
-        ->name('company.accept');
-
-    Route::post('/reject/{id}', [CompanyController::class, 'rejectApplication'])
-        ->name('company.reject');
+   Route::post('/company/accept/{id}', [CompanyController::class, 'accept'])->name('company.accept');
+Route::post('/company/reject/{id}', [CompanyController::class, 'reject'])->name('company.reject');
 });
 
 

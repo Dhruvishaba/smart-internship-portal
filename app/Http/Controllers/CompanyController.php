@@ -164,37 +164,25 @@ class CompanyController extends Controller
     | ACCEPT APPLICATION
     |------------------------------------------------------------------
     */
+public function accept($id)
+{
+    $application = Application::find($id);
 
-    public function acceptApplication($id)
-    {
-        $application = Application::with('internship')->findOrFail($id);
-
-        $company = Company::where('user_id', Auth::id())->first();
-
-        if (!$company) {
-            return back()->with('error', 'Company profile not found');
-        }
-
-        if ($application->internship->company_id != $company->id) {
-            return back()->with('error', 'Unauthorized action');
-        }
-
-        if ($application->status != 'Pending') {
-            return back()->with('error', 'Application already processed');
-        }
-
-        if ($application->internship->spots_available <= 0) {
-            return back()->with('error', 'No spots available');
-        }
-
-        $application->status = 'hired';
-        $application->save();
-
-        $application->internship->spots_available -= 1;
-        $application->internship->save();
-
-        return back()->with('success', 'Student hired successfully');
+    if (!$application) {
+        return back()->with('error', 'Application not found');
     }
+
+    // Only allow if pending
+    if ($application->status !== 'pending') {
+        return back()->with('error', 'Application already processed');
+    }
+
+    // CHANGE HERE → approved (not accepted)
+    $application->status = 'approved';
+    $application->save();
+
+    return back()->with('success', 'Application approved successfully');
+}
 
 
     /*
@@ -203,27 +191,21 @@ class CompanyController extends Controller
     |------------------------------------------------------------------
     */
 
-    public function rejectApplication($id)
-    {
-        $application = Application::with('internship')->findOrFail($id);
+   public function reject($id)
+{
+    $application = Application::find($id);
 
-        $company = Company::where('user_id', Auth::id())->first();
-
-        if (!$company) {
-            return back()->with('error', 'Company profile not found');
-        }
-
-        if ($application->internship->company_id != $company->id) {
-            return back()->with('error', 'Unauthorized action');
-        }
-
-        if ($application->status != 'Pending') {
-            return back()->with('error', 'Application already processed');
-        }
-
-        $application->status = 'rejected';
-        $application->save();
-
-        return back()->with('success', 'Student rejected successfully');
+    if (!$application) {
+        return back()->with('error', 'Application not found');
     }
+
+    if ($application->status == 'rejected') {
+        return back()->with('error', 'Application already rejected');
+    }
+
+    $application->status = 'rejected';
+    $application->save();
+
+    return back()->with('success', 'Application rejected successfully');
+}
 }
