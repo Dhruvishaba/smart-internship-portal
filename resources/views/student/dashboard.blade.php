@@ -1,4 +1,3 @@
-
 <style>
       :root {
             --primary: #4f46e5;
@@ -12,19 +11,18 @@
 
       body {
             margin: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-main);
             color: #1e293b;
       }
 
-      /* ===== SIDEBAR FIX ===== */
+      /* ===== SIDEBAR ===== */
       .sidebar {
             top: 0;
             position: fixed;
             left: 0;
             width: 260px;
             height: 100vh;
-            /* Fixed: Changed from 200px to full screen */
             background: var(--sidebar-bg);
             color: white;
             padding: 30px 20px;
@@ -72,45 +70,27 @@
             font-weight: 600;
             width: 100%;
             margin-top: auto;
+            transition: 0.2s;
+      }
+
+      .logout-btn:hover {
+            background: rgba(220, 38, 38, 0.2);
       }
 
       /* ===== MAIN CONTENT ===== */
       .main {
             margin-left: 260px;
-            /* Aligned with sidebar width */
-            padding: 40px;
+            padding: 35px 45px;
+            max-width: 1400px;
       }
 
-      /* ===== DYNAMIC STATS ===== */
+      /* ===== SEARCH HEADER ===== */
       .stats-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
             gap: 20px;
-      }
-
-      .stat-badge {
-            background: white;
-            padding: 15px 25px;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-      }
-
-      .stat-badge small {
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.7rem;
-      }
-
-      .stat-badge span {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
       }
 
       .search-box {
@@ -129,26 +109,32 @@
             border: none;
             outline: none;
             background: transparent;
+            font-size: 0.95rem;
       }
 
       .search-box button {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 24px;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
+            transition: 0.2s;
       }
 
-      /* ===== CARDS & SLIDER ===== */
+      .search-box button:hover {
+            background: var(--primary-hover);
+      }
+
+      /* ===== SLIDER ===== */
       .slider {
             position: relative;
-            height: 250px;
-            border-radius: 24px;
+            height: 220px;
+            border-radius: 20px;
             overflow: hidden;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 35px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
       }
 
       .slide {
@@ -156,7 +142,7 @@
             width: 100%;
             height: 100%;
             display: none;
-            padding: 50px;
+            padding: 50px 70px;
             box-sizing: border-box;
             color: white;
             background-size: cover;
@@ -170,7 +156,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, rgba(15, 23, 42, 0.8) 0%, transparent 100%);
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%);
             z-index: 1;
       }
 
@@ -180,45 +166,140 @@
             justify-content: center;
       }
 
-      .slide h3,
+      .slide h3 {
+            position: relative;
+            z-index: 2;
+            margin: 0 0 8px 0;
+            font-size: 1.6rem;
+      }
+
       .slide p {
             position: relative;
             z-index: 2;
-            margin: 5px 0;
+            margin: 0;
+            font-size: 1rem;
+            color: #e2e8f0;
       }
 
+      .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(6px);
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+      }
+
+      .slider-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+      }
+
+      .slider-btn.prev { left: 16px; }
+      .slider-btn.next { right: 16px; }
+
+      /* ===== SECTION TITLE ===== */
+      .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+      }
+
+      .section-title h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: #0f172a;
+      }
+
+      .section-title span {
+            font-size: 0.85rem;
+            color: #64748b;
+            background: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+      }
+
+      /* ===== CARDS GRID (FIXED 3-COLUMN) ===== */
       .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 24px;
+      }
+
+      @media (max-width: 1100px) {
+            .cards { grid-template-columns: repeat(2, 1fr); }
+      }
+
+      @media (max-width: 768px) {
+            .cards { grid-template-columns: 1fr; }
       }
 
       .card {
             background: white;
-            padding: 25px;
-            border-radius: 20px;
+            padding: 24px;
+            border-radius: 18px;
             border: 1px solid #e2e8f0;
-            transition: 0.3s ease;
+            box-shadow: var(--card-shadow);
+            transition: 0.25s ease;
             display: flex;
             flex-direction: column;
       }
 
       .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
             border-color: var(--primary);
       }
 
       .card h3 {
-            margin: 0 0 15px 0;
+            margin: 0 0 12px 0;
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--sidebar-bg);
+      }
+
+      .card-info {
+            font-size: 0.9rem;
+            color: #475569;
+            margin: 5px 0;
+            line-height: 1.5;
+      }
+
+      .skills-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+      }
+
+      .card-footer {
+            margin-top: auto;
+            padding-top: 16px;
+      }
+
+      .badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
       }
 
       .badge {
             padding: 6px 12px;
             border-radius: 8px;
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             font-weight: 700;
             text-transform: uppercase;
             display: inline-block;
@@ -243,7 +324,12 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            margin-top: 15px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+      }
+
+      .apply-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
       }
 
       /* ===== POPUP ===== */
@@ -284,8 +370,6 @@
 
 <div class="main">
       <div class="stats-header">
-            
-
             <form method="GET" action="{{ route('student.search') }}" class="search-box">
                   <input type="text" name="search" placeholder="Search skills, roles, companies...">
                   <button type="submit">Find Now</button>
@@ -301,35 +385,43 @@
                   <h3>💼 Industry Experience</h3>
                   <p>Work with top-tier companies.</p>
             </div>
-            <button class="slider-btn prev" style="left:10px; position:absolute; top:50%; z-index:10;" onclick="prevSlide()">‹</button>
-            <button class="slider-btn next" style="right:10px; position:absolute; top:50%; z-index:10;" onclick="nextSlide()">›</button>
+            <button class="slider-btn prev" onclick="prevSlide()">‹</button>
+            <button class="slider-btn next" onclick="nextSlide()">›</button>
+      </div>
+
+      <div class="section-title">
+            <h2>Available Internships</h2>
+            <span>{{ count($internships) }} Openings</span>
       </div>
 
       <div class="cards">
             @forelse($internships as $internship)
             <div class="card">
                   <h3>{{ $internship->title }}</h3>
-                  <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 5px;"><strong>🏢</strong> {{ $internship->company->company_name ?? 'N/A' }}</p>
-                  <p style="font-size: 0.9rem; color: #64748b;"><strong>💻</strong> {{ $internship->required_skills }}</p>
-                  <p style="font-size: 0.9rem; color: #64748b;"><strong>📍</strong> {{ $internship->address }}</p>
-                  <p style="font-size: 0.9rem; color: #64748b;"><strong>📅 Deadline: {{ \Carbon\Carbon::parse($internship->application_deadline)->format('d M Y') }}</strong></p>
-                  <div style="margin: 15px 0;">
-                        @if($internship->stipend)
-                        <span class="badge paid">₹{{ $internship->stipend }}</span>
-                        @else
-                        <span class="badge unpaid">Unpaid</span>
-                        @endif
-                        <span style="font-size: 0.75rem; color: #94a3b8; margin-left: 10px;">{{ $internship->spots_available }} spots left</span>
-                  </div>
+                  <p class="card-info"><strong>🏢</strong> {{ $internship->company->company_name ?? 'N/A' }}</p>
+                  <p class="card-info skills-text"><strong>💻</strong> {{ $internship->required_skills }}</p>
+                  <p class="card-info"><strong>📍</strong> {{ $internship->address }}</p>
+                  <p class="card-info"><strong>📅 Deadline:</strong> {{ \Carbon\Carbon::parse($internship->application_deadline)->format('d M Y') }}</p>
 
-                  @if(\Carbon\Carbon::parse($internship->application_deadline)->isPast() || $internship->spots_available <= 0)
-                        <button class="apply-btn" style="background: #e2e8f0; color: #94a3b8; cursor:not-allowed;" disabled>Closed</button>
+                  <div class="card-footer">
+                        <div class="badge-row">
+                              @if($internship->stipend)
+                              <span class="badge paid">₹{{ $internship->stipend }}/mo</span>
+                              @else
+                              <span class="badge unpaid">Unpaid</span>
+                              @endif
+                              <span style="font-size: 0.8rem; color: #64748b; font-weight: 500;">{{ $internship->spots_available }} spots left</span>
+                        </div>
+
+                        @if(\Carbon\Carbon::parse($internship->application_deadline)->isPast() || $internship->spots_available <= 0)
+                              <button class="apply-btn" style="background: #e2e8f0; color: #94a3b8; cursor:not-allowed;" disabled>Closed</button>
                         @else
-                        <form id="applyForm{{ $internship->id }}" action="{{ route('student.apply',$internship->id) }}" method="POST">
-                              @csrf
-                              <button type="button" onclick="checkSkill('{{ $internship->id }}')" class="apply-btn">Apply Now</button>
-                        </form>
+                              <form id="applyForm{{ $internship->id }}" action="{{ route('student.apply',$internship->id) }}" method="POST" style="margin:0;">
+                                    @csrf
+                                    <button type="button" onclick="checkSkill('{{ $internship->id }}')" class="apply-btn">Apply Now</button>
+                              </form>
                         @endif
+                  </div>
             </div>
             @empty
             <p>No internships available at the moment.</p>
@@ -367,18 +459,18 @@
       setInterval(nextSlide, 5000);
 
       function checkSkill(id) {
-    fetch("/student/check-skill/" + id)
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === "success") {
-                document.getElementById("applyForm" + id).submit();
-            } else {
-                document.getElementById("popupMessage").innerText =
-                    data.message + " (Match: " + data.match + "%)";
-                document.getElementById("skillPopup").style.display = "flex";
-            }
-        });
-}
+            fetch("/student/check-skill/" + id)
+                  .then(res => res.json())
+                  .then(data => {
+                        if (data.status === "success") {
+                              document.getElementById("applyForm" + id).submit();
+                        } else {
+                              document.getElementById("popupMessage").innerText =
+                                    data.message + " (Match: " + data.match + "%)";
+                              document.getElementById("skillPopup").style.display = "flex";
+                        }
+                  });
+      }
 
       function closePopup() {
             document.getElementById("skillPopup").style.display = "none";
