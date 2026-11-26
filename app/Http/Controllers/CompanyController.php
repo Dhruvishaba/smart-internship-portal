@@ -18,10 +18,22 @@ class CompanyController extends Controller
 
     /*
     |------------------------------------------------------------------
+    | CHECK COMPANY ACTIVE
+    |------------------------------------------------------------------
+    */
+    private function checkActiveCompany($company)
+    {
+        if (!$company || $company->user->status != 'active') {
+            return redirect('/login')
+                ->with('error', 'Your account is deactivated by admin');
+        }
+    }
+
+    /*
+    |------------------------------------------------------------------
     | CONVERT SKILLS STRING TO ARRAY
     |------------------------------------------------------------------
     */
-
     private function convertSkillsToArray($skills)
     {
         if (!$skills) {
@@ -31,40 +43,35 @@ class CompanyController extends Controller
         return array_map('trim', explode(',', strtolower($skills)));
     }
 
-
     /*
     |------------------------------------------------------------------
     | COMPANY DASHBOARD
     |------------------------------------------------------------------
     */
-
     public function dashboard()
     {
-        $company = Company::where('user_id', Auth::id())->first();
+        $company = Company::with('user')
+            ->where('user_id', Auth::id())
+            ->first();
 
         if (!$company) {
             return redirect()->route('company.profile.edit')
                 ->with('error', 'Please complete your company profile first.');
         }
 
-        // internships
+        // 🔥 BLOCK INACTIVE COMPANY
+        if ($this->checkActiveCompany($company)) return $this->checkActiveCompany($company);
+
         $internships = Internship::where('company_id', $company->id)
             ->latest()
             ->get();
 
-        // applications
         $applications = Application::whereHas('internship', function ($query) use ($company) {
                 $query->where('company_id', $company->id);
             })
             ->with(['student', 'internship'])
             ->latest()
             ->get();
-
-        /*
-        |------------------------------------------------------------------
-        | MATCHING STUDENTS
-        |------------------------------------------------------------------
-        */
 
         $matchingStudents = Student::all()->filter(function ($student) use ($company) {
 
@@ -88,15 +95,19 @@ class CompanyController extends Controller
         ));
     }
 
-
     /*
     |------------------------------------------------------------------
     | SEARCH STUDENTS
     |------------------------------------------------------------------
     */
-
     public function search(Request $request)
     {
+        $company = Company::with('user')
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($this->checkActiveCompany($company)) return $this->checkActiveCompany($company);
+
         $query = $request->search;
 
         $students = Student::with('user')
@@ -112,13 +123,11 @@ class CompanyController extends Controller
         return view('company.search_results', compact('students'));
     }
 
-
     /*
     |------------------------------------------------------------------
-    | EDIT COMPANY PROFILE
+    | EDIT PROFILE
     |------------------------------------------------------------------
     */
-
     public function editProfile()
     {
         $company = Company::where('user_id', Auth::id())->first();
@@ -126,13 +135,11 @@ class CompanyController extends Controller
         return view('company.edit-profile', compact('company'));
     }
 
-
     /*
     |------------------------------------------------------------------
-    | UPDATE COMPANY PROFILE
+    | UPDATE PROFILE
     |------------------------------------------------------------------
     */
-
     public function updateProfile(Request $request)
     {
         $request->validate([
@@ -158,54 +165,61 @@ class CompanyController extends Controller
             ->with('success', 'Company Profile Updated Successfully');
     }
 
-
     /*
     |------------------------------------------------------------------
     | ACCEPT APPLICATION
     |------------------------------------------------------------------
     */
-public function accept($id)
-{
-    $application = Application::find($id);
+    public function accept($id)
+    {
+        $company = Company::with('user')
+            ->where('user_id', Auth::id())
+            ->first();
 
-    if (!$application) {
-        return back()->with('error', 'Application not found');
+        if ($this->checkActiveCompany($company)) return $this->checkActiveCompany($company);
+
+        $application = Application::find($id);
+
+        if (!$application) {
+            return back()->with('error', 'Application not found');
+        }
+
+        if ($application->status !== 'pending') {
+            return back()->with('error', 'Application already processed');
+        }
+
+        $application->status = 'approved';
+        $application->save();
+
+        return back()->with('success', 'Application approved successfully');
     }
-
-    // Only allow if pending
-    if ($application->status !== 'pending') {
-        return back()->with('error', 'Application already processed');
-    }
-
-    // CHANGE HERE → approved (not accepted)
-    $application->status = 'approved';
-    $application->save();
-
-    return back()->with('success', 'Application approved successfully');
-}
-
 
     /*
     |------------------------------------------------------------------
     | REJECT APPLICATION
     |------------------------------------------------------------------
     */
+    public function reject($id)
+    {
+        $company = Company::with('user')
+            ->where('user_id', Auth::id())
+            ->first();
 
-   public function reject($id)
-{
-    $application = Application::find($id);
+        if ($this->checkActiveCompany($company)) return $this->checkActiveCompany($company);
 
-    if (!$application) {
-        return back()->with('error', 'Application not found');
+        $application = Application::find($id);
+
+        if (!$application) {
+            return back()->with('error', 'Application not found');
+        }
+
+        if ($application->status == 'rejected') {
+            return back()->with('error', 'Application already rejected');
+        }
+
+        $application->status = 'rejected';
+        $application->save();
+
+        return back()->with('success', 'Application rejected successfully');
     }
-
-    if ($application->status == 'rejected') {
-        return back()->with('error', 'Application already rejected');
-    }
-
-    $application->status = 'rejected';
-    $application->save();
-
-    return back()->with('success', 'Application rejected successfully');
-}
 }

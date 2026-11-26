@@ -13,6 +13,7 @@
         <th>Mobile</th>
         <th>Address</th>
         <th>Skills</th>
+        <th>Status</th>
         <th>Registered At</th>
         <th>Action</th>
     </tr>
@@ -32,15 +33,34 @@
 
         <td>{{ $student->skills }}</td>
 
+        <!-- ✅ STATUS -->
+        <td>
+            @if($student->user && $student->user->status == 'active')
+                <span style="color:green;font-weight:bold;">Active</span>
+            @else
+                <span style="color:red;font-weight:bold;">Inactive</span>
+            @endif
+        </td>
+
         <td>{{ $student->created_at }}</td>
 
         <td>
 
-            <a href="{{ route('admin.delete.student',$student->id) }}"
-               onclick="return confirm('Delete student?')"
-               style="background:red;color:white;padding:5px 10px;text-decoration:none;">
-               Delete
-            </a>
+            <!-- 🔴 DEACTIVATE -->
+            @if($student->user && $student->user->status == 'active')
+                <a href="{{ route('admin.student.deactivate',$student->id) }}"
+                   onclick="return confirm('Deactivate this student?')"
+                   style="background:orange;color:white;padding:5px 10px;text-decoration:none;margin-right:5px;">
+                   Deactivate
+                </a>
+            @else
+            <!-- 🟢 ACTIVATE -->
+                <a href="{{ route('admin.student.activate',$student->id) }}"
+                   onclick="return confirm('Activate this student?')"
+                   style="background:green;color:white;padding:5px 10px;text-decoration:none;margin-right:5px;">
+                   Activate
+                </a>
+            @endif
 
         </td>
 

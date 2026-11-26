@@ -52,7 +52,7 @@
 
 <div class="navbar">
     <div>
-        <strong>Smart Internship and Skill Recommendation System</strong>
+        <strong">Smart Internship and Skill Recommendation System</strong>
     </div>
 
     <div>

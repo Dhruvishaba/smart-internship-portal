@@ -14,6 +14,7 @@
         <th>Address</th>
         <th>Technology</th>
         <th>Internship Type</th>
+        <th>Status</th>
         <th>Action</th>
     </tr>
 
@@ -34,13 +35,33 @@
 
         <td>{{ $company->internship_type }}</td>
 
+        <!-- ✅ STATUS -->
+        <td>
+            @if($company->user && $company->user->status == 'active')
+                <span style="color:green;font-weight:bold;">Active</span>
+            @else
+                <span style="color:red;font-weight:bold;">Inactive</span>
+            @endif
+        </td>
+
         <td>
 
-            <a href="{{ route('admin.delete.company',$company->id) }}"
-               onclick="return confirm('Delete company?')"
-               style="background:red;color:white;padding:5px 10px;text-decoration:none;">
-               Delete
-            </a>
+            <!-- 🔴 DEACTIVATE -->
+            @if($company->user && $company->user->status == 'active')
+                <a href="{{ route('admin.company.deactivate',$company->id) }}"
+                   onclick="return confirm('Deactivate this company?')"
+                   style="background:orange;color:white;padding:5px 10px;text-decoration:none;margin-right:5px;">
+                   Deactivate
+                </a>
+            @else
+            <!-- 🟢 ACTIVATE -->
+                <a href="{{ route('admin.company.activate',$company->id) }}"
+                   onclick="return confirm('Activate this company?')"
+                   style="background:green;color:white;padding:5px 10px;text-decoration:none;margin-right:5px;">
+                   Activate
+                </a>
+            @endif
+
 
         </td>
 

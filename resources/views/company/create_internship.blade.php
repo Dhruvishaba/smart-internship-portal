@@ -2,173 +2,270 @@
 
 @section('content')
 
-<div style="max-width:800px;margin:auto;padding:30px;
-            background:white;border-radius:10px;
-            box-shadow:0 0 15px rgba(0,0,0,0.1);">
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <h2>🎓 Post New Internship</h2>
+    :root {
+        --bg:         #f0f4fa;
+        --surface:    #ffffff;
+        --surface2:   #f7f9fc;
+        --border:     #e2e8f4;
+        --accent:     #3b7ef8;
+        --accent2:    #6c4ef7;
+        --accent-lt:  #eef3ff;
+        --success:    #16a34a;
+        --danger:     #dc2626;
+        --text:       #111827;
+        --muted:      #6b7280;
+        --label:      #374151;
+        --font-head: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+        --radius:     14px;
+        --radius-sm:  8px;
+        --shadow:     0 4px 24px rgba(59,126,248,0.08), 0 1px 4px rgba(0,0,0,0.06);
+    }
 
-    @php
-        $today = date('Y-m-d');
+    body {
+        background: var(--bg);
+        font-family: var(--font-body);
+        color: var(--text);
+    }
+
+    .page-wrap {
+        max-width: 850px;
+        margin: auto;
+        position: relative;
+        z-index: 1;
+        padding-bottom: 50px;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .page-header h2 {
+        font-family: var(--font-head);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: var(--text);
+    }
+
+    .page-header p {
+        font-size: 13.5px;
+        color: var(--muted);
+    }
+
+    .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 32px 36px;
+        margin-bottom: 22px;
+        box-shadow: var(--shadow);
+    }
+
+    .section-title {
+        font-family: var(--font-head);
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 26px;
+        padding-bottom: 14px;
+        border-bottom: 1.5px solid var(--border);
+    }
+
+    .field-group { margin-bottom: 20px; }
+    
+    label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        color: var(--label);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        background: var(--surface2);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px 15px;
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 14px;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59,126,248,0.1);
+    }
+
+    .hint { font-size: 11px; color: var(--muted); margin-top: 5px; display: block; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+    .alert {
+        padding: 14px 18px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 20px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+    .alert-danger { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+
+    .btn-submit {
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        color: white;
+        border: none;
+        padding: 14px 36px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-head);
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 15px rgba(59,126,248,0.3);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59,126,248,0.4);
+    }
+
+    @media (max-width: 768px) {
+        .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="page-wrap">
+
+    <div class="page-header">
+        <div>
+            <h2>Post New Internship</h2>
+            <p>Fill in the details to find the best student talent</p>
+        </div>
+    </div>
+
+    @php 
+        // Logic: Tomorrow is the earliest selectable date
+        $tomorrow = date('Y-m-d', strtotime('+1 day')); 
     @endphp
 
-
-    <!-- SUCCESS -->
+    {{-- Notifications --}}
     @if(session('success'))
-        <div style="color:green;margin-bottom:15px;">
+        <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-
-    <!-- ERROR -->
-    @if ($errors->any())
-        <div style="color:red;margin-bottom:15px;">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+    @if ($errors->any() || session('error'))
+        <div class="alert alert-danger">
+            @if(session('error')) {{ session('error') }} @endif
+            @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
         </div>
     @endif
-
 
     <form method="POST" action="{{ route('internships.store') }}">
         @csrf
 
-        <!-- Title -->
-        <div style="margin-top:15px;">
-            <label>Internship Title</label>
-            <input type="text"
-                   name="title"
-                   value="{{ old('title') }}"
-                   class="form-control"
-                   placeholder="e.g. Laravel Developer Intern"
-                   required>
+        {{-- BASIC INFORMATION --}}
+        <div class="card">
+            <div class="section-title">Basic Information</div>
+            
+            <div class="field-group">
+                <label>Internship Title</label>
+                <input type="text" name="title" value="{{ old('title') }}" class="form-control" placeholder="e.g. Laravel Developer Intern" required>
+            </div>
+
+            <div class="field-group">
+                <label>Job Description</label>
+                <textarea name="description" class="form-control" rows="4" placeholder="Briefly describe the roles and responsibilities..." required>{{ old('description') }}</textarea>
+            </div>
+
+            <div class="field-group">
+                <label>Required Skills</label>
+                <input type="text" name="required_skills" value="{{ old('required_skills') }}" class="form-control" placeholder="laravel, php, mysql, javascript" required>
+                <span class="hint">Separate multiple skills with commas</span>
+            </div>
         </div>
 
-        <!-- Description -->
-        <div style="margin-top:15px;">
-            <label>Description</label>
-            <textarea name="description"
-                      class="form-control"
-                      rows="4"
-                      required>{{ old('description') }}</textarea>
+        {{-- LOGISTICS & DATES --}}
+        <div class="card">
+            <div class="section-title">Timeline & Logistics</div>
+            
+            <div class="grid-3">
+                <div class="field-group">
+                    <label>Duration</label>
+                    <input type="text" name="duration" value="{{ old('duration') }}" class="form-control" placeholder="e.g. 3 Months" required>
+                </div>
+                <div class="field-group">
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" value="{{ old('start_date') }}" class="form-control" min="{{ $tomorrow }}" required>
+                </div>
+                <div class="field-group">
+                    <label>End Date</label>
+                    <input type="date" name="end_date" value="{{ old('end_date') }}" class="form-control" min="{{ $tomorrow }}" required>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="field-group">
+                    <label>Stipend (Monthly)</label>
+                    <input type="number" name="stipend" value="{{ old('stipend') }}" class="form-control" placeholder="5000" required>
+                </div>
+                <div class="field-group">
+                    <label>Available Spots</label>
+                    <input type="number" name="spots_available" value="{{ old('spots_available') }}" class="form-control" min="1" placeholder="5" required>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>Internship Location</label>
+                <textarea name="address" class="form-control" rows="2" placeholder="Office address or 'Remote'" required>{{ old('address') }}</textarea>
+            </div>
         </div>
 
-        <!-- Required Skills -->
-        <div style="margin-top:15px;">
-            <label>Required Skills (comma separated)</label>
-            <input type="text"
-                   name="required_skills"
-                   value="{{ old('required_skills') }}"
-                   class="form-control"
-                   placeholder="laravel, php, mysql, javascript"
-                   required>
-<small style="color:gray;">
-    Example: laravel, php, mysql  
-    Enter skills separated by comma.
-</small>
+        {{-- ELIGIBILITY & DEADLINE --}}
+        <div class="card">
+            <div class="section-title">Eligibility & Deadline</div>
+            
+            <div class="field-group">
+                <label>Eligibility Criteria</label>
+                <textarea name="eligibility" class="form-control" rows="3" placeholder="Specify education requirements..." required>{{ old('eligibility') }}</textarea>
+            </div>
 
-@if(session('error'))
-    <div style="color:red;margin-top:5px;">
-        {{ session('error') }}
-    </div>
-@endif
+            <div class="field-group">
+                <label>Application Deadline</label>
+                <input type="date" name="application_deadline" value="{{ old('application_deadline') }}" class="form-control" min="{{ $tomorrow }}" required>
+                <span class="hint">Must be at least tomorrow</span>
+            </div>
         </div>
 
-        <!-- Duration -->
-        <div style="margin-top:15px;">
-            <label>Duration</label>
-            <input type="text"
-                   name="duration"
-                   value="{{ old('duration') }}"
-                   class="form-control"
-                   placeholder="3 Months"
-                   required>
+        <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn-submit">
+                🚀 Post Internship
+            </button>
         </div>
-
-        <!-- Start Date -->
-        <div style="margin-top:15px;">
-            <label>Start Date</label>
-            <input type="date"
-                   name="start_date"
-                   value="{{ old('start_date') }}"
-                   class="form-control"
-                   min="{{ $today }}"
-                   required>
-        </div>
-
-        <!-- End Date -->
-        <div style="margin-top:15px;">
-            <label>End Date</label>
-            <input type="date"
-                   name="end_date"
-                   value="{{ old('end_date') }}"
-                   class="form-control"
-                   min="{{ $today }}"
-                   required>
-        </div>
-
-        <!-- Stipend -->
-        <div style="margin-top:15px;">
-            <label>Stipend (₹)</label>
-            <input type="number"
-                   name="stipend"
-                   value="{{ old('stipend') }}"
-                   class="form-control"
-                   placeholder="5000"
-                   required>
-        </div>
-
-        <!-- Address -->
-        <div style="margin-top:15px;">
-            <label>Internship Location</label>
-            <textarea name="address"
-                      class="form-control"
-                      rows="3"
-                      required>{{ old('address') }}</textarea>
-        </div>
-
-        <!-- Eligibility -->
-        <div style="margin-top:15px;">
-            <label>Eligibility</label>
-            <textarea name="eligibility"
-                      class="form-control"
-                      rows="3"
-                      required>{{ old('eligibility') }}</textarea>
-        </div>
-
-        <!-- Deadline -->
-        <div style="margin-top:15px;">
-            <label>Application Deadline</label>
-            <input type="date"
-                   name="application_deadline"
-                   value="{{ old('application_deadline') }}"
-                   class="form-control"
-                   min="{{ $today }}"
-                   required>
-        </div>
-
-        <!-- Spots -->
-        <div style="margin-top:15px;">
-            <label>Available Spots</label>
-            <input type="number"
-                   name="spots_available"
-                   value="{{ old('spots_available') }}"
-                   class="form-control"
-                   min="1"
-                   required>
-        </div>
-
-        <button type="submit"
-            style="margin-top:25px;background:#28a745;color:white;
-                   padding:10px 25px;border:none;border-radius:5px;">
-            🚀 Post Internship
-        </button>
 
     </form>
-
 </div>
 
 @endsection

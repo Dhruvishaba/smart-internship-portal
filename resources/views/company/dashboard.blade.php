@@ -1,387 +1,230 @@
-@extends('layouts.app')
 
-@section('content')
 
 <style>
+    :root {
+        --primary: #4f46e5;
+        --success: #10b981;
+        --danger: #ef4444;
+        --slate-50: #f8fafc;
+        --slate-200: #e2e8f0;
+        --slate-700: #334155;
+        --slate-900: #0f172a;
+    }
 
-/* Container */
-.container-box{
-    max-width:1100px;
-    margin:auto;
-    padding:30px;
-}
+    body { background-color: var(--slate-50); font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--slate-900); }
+    .container-dashboard { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
 
-/* Header */
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
-}
+    /* Header Section */
+    .glass-card {
+        background: white;
+        padding: 28px;
+        border-radius: 20px;
+        border: 1px solid var(--slate-200);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04);
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-.logout-btn{
-    background:#dc2626;
-    color:white;
-    padding:8px 16px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
+    /* Stats */
+    .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .stat-tile { background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--slate-200); }
+    .stat-tile small { color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+    .stat-tile h2 { font-size: 1.75rem; margin-top: 8px; color: var(--primary); }
 
-/* Search */
-.search-box{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom:25px;
-}
+    /* Modern Rows for Applications */
+    .app-row {
+        background: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        border: 1px solid var(--slate-200);
+        margin-bottom: 12px;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .app-row:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
 
-.search-box input{
-    padding:10px;
-    width:280px;
-    border-radius:6px;
-    border:1px solid #ccc;
-}
+    /* Buttons */
+    .btn { padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-light { background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200); }
+    .btn-light:hover { background: #f1f5f9; }
 
-.search-box button{
-    background:#2563eb;
-    color:white;
-    padding:10px 15px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
+    /* Side Drawer */
+    .side-drawer {
+        position: fixed;
+        right: -550px;
+        top: 0;
+        width: 450px;
+        height: 100vh;
+        background: white;
+        z-index: 2000;
+        box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 40px;
+        overflow-y: auto;
+    }
+    .side-drawer.active { right: 0; }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; z-index: 1999; }
 
-/* Stats */
-.stats{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
-    margin-bottom:30px;
-}
-
-.stat-box{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-    text-align:center;
-}
-
-/* Card */
-.card{
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom:15px;
-    transition:0.3s;
-    position:relative;
-    z-index:1;
-}
-
-.card:hover{
-    z-index:1000;
-}
-
-/* Badges */
-.badge{
-    padding:5px 10px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:600;
-}
-
-.open{ background:#dcfce7; color:#16a34a; }
-.closed{ background:#fee2e2; color:#dc2626; }
-
-/* Status */
-.status{
-    padding:5px 12px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:600;
-}
-
-.approved{ background:#dcfce7; color:#16a34a; }
-.rejected{ background:#fee2e2; color:#dc2626; }
-.pending{ background:#fef3c7; color:#d97706; }
-
-/* Buttons */
-.btn{
-    padding:8px 16px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:600;
-}
-
-.btn-accept{ background:#16a34a; color:white; }
-.btn-reject{ background:#dc2626; color:white; }
-
-/* Student Hover */
-/* Student Hover */
-.student-hover{
-    position:relative;
-    display:inline-block;
-    cursor:pointer;
-    color:#2563eb;
-    font-weight:600;
-}
-
-/* FIXED CARD */
-.student-card{
-    display:none;
-    position:absolute;
-    top:30px;
-    left:0;
-    width:350px;
-    max-height:420px;
-    overflow-y:auto;
-    background:#ffffff;
-    padding:18px;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.15);
-    z-index:9999; /* increase */
-}
-
-/* SHOW ON HOVER */
-.student-hover:hover .student-card{
-    display:block;
-}
-
-/* SECTION DIVIDER */
-.student-card hr{
-    margin:10px 0;
-    border:none;
-    border-top:1px solid #e5e7eb;
-}
-
-/* TEXT IMPROVEMENT */
-.student-card strong{
-    color:#374151;
-}
-
-/* PREVENT OVERFLOW RIGHT SIDE */
-.student-hover:last-child .student-card{
-    left:auto;
-    right:0;
-}
-
+    /* Badge */
+    .pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-approved { background: #dcfce7; color: #166534; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
 </style>
 
-<div class="container-box">
+<div class="container-dashboard">
+    
+    @if(session('success'))
+        <div style="background: var(--success); color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            {{ session('success') }}
+        </div>
+    @endif
 
-@if(session('success'))
-<div style="background:#dcfce7;padding:10px;border-radius:6px;margin-bottom:15px;">
-{{ session('success') }}
-</div>
-@endif
+    <div class="glass-card">
+        <div>
+            <h1 style="font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px;">{{ $company->company_name }} Dashboard</h1>
+            <p style="color: #64748b; font-size: 0.9rem;">Manage your recruitment and student placements</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="{{ route('internships.create') }}" class="btn btn-primary">+ Post Internship</a>
+            <form method="POST" action="{{ route('logout') }}">@csrf <button class="btn btn-light">Logout</button></form>
+        </div>
+    </div>
 
-@if(session('error'))
-<div style="background:#fee2e2;padding:10px;border-radius:6px;margin-bottom:15px;">
-{{ session('error') }}
-</div>
-@endif
+    <div class="grid-stats">
+        <div class="stat-tile"><small>Total Posts</small><h2>{{ $internships->count() }}</h2></div>
+        <div class="stat-tile"><small>Total Applicants</small><h2>{{ $applications->count() }}</h2></div>
+        <div class="stat-tile"><small>Pending Review</small><h2 style="color: var(--danger)">{{ $applications->where('status', 'pending')->count() }}</h2></div>
+    </div>
 
-<!-- HEADER -->
-<div class="header">
-<h2>🏢 {{ $company->company_name }} Dashboard</h2>
+    <div style="margin-bottom: 25px;">
+        <button onclick="toggleApplications()" class="btn btn-light" id="toggleBtn" style="color: var(--primary); border-color: var(--primary);">
+            📂 Show All Applications
+        </button>
+    </div>
 
-<form method="POST" action="{{ route('logout') }}">
-@csrf
-<button class="logout-btn">Logout</button>
-</form>
-</div>
+     <div id="internship-list" style="margin-top: 40px;">
+        <h3 style="margin-bottom: 20px; font-weight: 700;">Your Listings</h3>
+        @foreach($internships as $internship)
+            <div class="stat-tile" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="font-weight: 700;">{{ $internship->title }}</h4>
+                    <p style="font-size: 0.85rem; color: #64748b;">Skills: {{ $internship->required_skills }}</p>
+                </div>
+                <span class="pill {{ \Carbon\Carbon::parse($internship->application_deadline)->isPast() ? 'status-rejected' : 'status-approved' }}">
+                    {{ \Carbon\Carbon::parse($internship->application_deadline)->isPast() ? 'Closed' : 'Active' }}
+                </span>
+            </div>
+        @endforeach
+    </div>
 
-<!-- SEARCH -->
-<div class="search-box">
-<h3>🔎 Search Students</h3>
+    <div id="applications-section" style="display: none; animation: fadeIn 0.4s ease-out;">
+        <h3 style="margin-bottom: 20px; font-weight: 700;">Student Applications</h3>
+        @forelse($applications as $app)
+            <div class="app-row">
+                <div>
+                    <div style="font-weight: 700; font-size: 1.05rem;">{{ $app->student->name }}</div>
+                    <div style="font-size: 0.85rem; color: #64748b;">For: {{ $app->internship->title }}</div>
+                </div>
+                <div style="font-weight: 600;">GPA: {{ $app->student->current_cgpa ?? 'N/A' }}</div>
+                <div>
+                    <span class="pill status-{{ strtolower($app->status) }}">{{ $app->status }}</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="openProfile({{ json_encode($app->student) }})" class="btn btn-light">Profile</button>
+                    
+                    @if(strtolower($app->status) == 'pending')
+                        <form action="{{ route('company.accept', $app->id) }}" method="POST">
+                            @csrf 
+                            <button class="btn btn-success" title="Approved">✔</button>
+                        </form>
+                        <form action="{{ route('company.reject', $app->id) }}" method="POST">
+                            @csrf 
+                            <button class="btn btn-danger" title="Rejected">✖</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <p style="color: #64748b;">No applications received yet.</p>
+        @endforelse
+    </div>
 
-<form action="{{ route('company.search') }}" method="GET">
-<input type="text" name="search" placeholder="Search by skills, CGPA, location...">
-<button type="submit">Search</button>
-</form>
-</div>
-
-<!-- STATS -->
-<div class="stats">
-
-<div class="stat-box">
-<h4>Total Internships</h4>
-<h2>{{ $internships->count() }}</h2>
-</div>
-
-<div class="stat-box">
-<h4>Total Applications</h4>
-<h2>{{ $applications->count() }}</h2>
-</div>
-
-<div class="stat-box">
-<h4>Matching Students</h4>
-<h2>{{ $matchingStudents->count() }}</h2>
-</div>
-
-</div>
-
-<!-- BUTTON -->
-<div style="margin-bottom:25px;">
-<a href="{{ route('internships.create') }}"
-style="background:#16a34a;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
-+ Post Internship
-</a>
-</div>
-
-<!-- INTERNSHIPS -->
-<h3>📢 Your Posted Internships</h3>
-
-@forelse($internships as $internship)
-
-<div class="card">
-
-<h4>{{ $internship->title }}</h4>
-
-<p><strong>Skills:</strong> {{ $internship->required_skills ?? 'N/A' }}</p>
-<p><strong>Duration:</strong> {{ $internship->duration }}</p>
-<p><strong>Spots:</strong> {{ $internship->spots_available }}</p>
-
-<p>
-<strong>Status:</strong>
-
-@if(\Carbon\Carbon::parse($internship->application_deadline)->isPast()
-|| $internship->spots_available <= 0)
-
-<span class="badge closed">Closed</span>
-
-@else
-
-<span class="badge open">Open</span>
-
-@endif
-</p>
-
+   
 </div>
 
-@empty
-<p>No internships posted yet.</p>
-@endforelse
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeProfile()"></div>
+<div class="side-drawer" id="studentDrawer">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+        <div>
+            <h2 id="d-name" style="font-weight: 800; font-size: 1.8rem; color: var(--primary);"></h2>
+            <p id="d-program" style="color: #64748b; font-weight: 500;"></p>
+        </div>
+        <button onclick="closeProfile()" style="background: none; border: none; font-size: 2rem; cursor: pointer;">&times;</button>
+    </div>
 
-<br>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+        <div style="background: var(--slate-50); padding: 15px; border-radius: 12px;">
+            <small style="color: #94a3b8; font-weight: 700; text-transform: uppercase;">Current CGPA</small>
+            <div id="d-cgpa" style="font-size: 1.25rem; font-weight: 800; margin-top: 5px;"></div>
+        </div>
+        <div style="background: var(--slate-50); padding: 15px; border-radius: 12px;">
+            <small style="color: #94a3b8; font-weight: 700; text-transform: uppercase;">Semester</small>
+            <div id="d-semester" style="font-size: 1.25rem; font-weight: 800; margin-top: 5px;"></div>
+        </div>
+    </div>
 
-<!-- APPLICATIONS -->
-<h3>📄 Student Applications</h3>
+    <div style="margin-bottom: 25px;">
+        <h4 style="font-weight: 700; margin-bottom: 10px;">Contact Info</h4>
+        <p>📱 <span id="d-mobile"></span></p>
+        <p>📍 <span id="d-address"></span></p>
+    </div>
 
-@forelse($applications as $application)
+    <div style="margin-bottom: 25px;">
+        <h4 style="font-weight: 700; margin-bottom: 10px;">Technical Skills</h4>
+        <p id="d-skills" style="line-height: 1.6; color: var(--slate-700);"></p>
+    </div>
 
-@php
-$status = strtolower(trim($application->status));
-@endphp
-
-<div class="card">
-
-<strong>Internship:</strong> {{ $application->internship->title ?? 'N/A' }}
-
-<br><br>
-
-<strong>Student:</strong>
-
-<span class="student-hover">
-{{ $application->student->name ?? 'N/A' }}
-
-<div class="student-card">
-
-{{-- BASIC --}}
-<strong>Name:</strong> {{ $application->student->name ?? 'N/A' }} <br>
-<strong>Gender:</strong> {{ $application->student->gender ?? 'N/A' }} <br>
-<strong>Mobile:</strong> {{ $application->student->mobile ?? 'N/A' }} <br>
-<strong>DOB:</strong> {{ $application->student->dob ?? 'N/A' }} <br>
-<strong>Address:</strong> {{ $application->student->address ?? 'N/A' }} <br>
-
-<hr>
-
-{{-- EDUCATION --}}
-<strong>🎓 Education</strong><br>
-
-<strong>SSC:</strong> 
-{{ $application->student->ssc_percentage ?? 'N/A' }} 
- <br>
-
-<strong>HSC:</strong> 
-{{ $application->student->hsc_percentage ?? 'N/A' }} 
- <br>
-
-<strong>Program:</strong> {{ $application->student->current_program ?? 'N/A' }} <br>
-<strong>Semester:</strong> {{ $application->student->current_semester ?? 'N/A' }} <br>
-<strong>CGPA:</strong> {{ $application->student->current_cgpa ?? 'N/A' }} <br>
-
-<hr>
-
-{{-- SKILLS --}}
-<strong>💻 Skills:</strong><br>
-{{ $application->student->skills ?? 'N/A' }}
-
-<hr>
-
-{{-- ACTIVITIES --}}
-<strong>🏆 Achievements:</strong><br>
-{{ $application->student->achievements ?? 'N/A' }}
-
-<br><br>
-
-<strong>📢 Seminars:</strong><br>
-{{ $application->student->seminars ?? 'N/A' }}
-
-<hr>
-
-{{-- INTERNSHIP --}}
-<strong>💼 Internship Status:</strong>
-@if($application->student->is_interning)
-    Yes ({{ $application->student->intern_position ?? 'N/A' }})
-@else
-    No
-@endif
-
+    <div style="margin-bottom: 25px;">
+        <h4 style="font-weight: 700; margin-bottom: 10px;">Achievements</h4>
+        <p id="d-achievements" style="line-height: 1.6; color: var(--slate-700); font-size: 0.95rem;"></p>
+    </div>
 </div>
 
-</span>
+<script>
+    function toggleApplications() {
+        const section = document.getElementById('applications-section');
+        const btn = document.getElementById('toggleBtn');
+        const isHidden = section.style.display === 'none';
+        
+        section.style.display = isHidden ? 'block' : 'none';
+        btn.innerText = isHidden ? '🔼 Hide Applications' : '📂 Show All Applications';
+    }
 
-<br><br>
+    function openProfile(student) {
+        document.getElementById('d-name').innerText = student.name || 'N/A';
+        document.getElementById('d-program').innerText = student.current_program || 'N/A';
+        document.getElementById('d-cgpa').innerText = student.current_cgpa || 'N/A';
+        document.getElementById('d-semester').innerText = student.current_semester || 'N/A';
+        document.getElementById('d-mobile').innerText = student.mobile || 'N/A';
+        document.getElementById('d-address').innerText = student.address || 'N/A';
+        document.getElementById('d-skills').innerText = student.skills || 'N/A';
+        document.getElementById('d-achievements').innerText = student.achievements || 'N/A';
 
-<strong>Status:</strong>
+        document.getElementById('studentDrawer').classList.add('active');
+        document.getElementById('drawerOverlay').style.display = 'block';
+    }
 
-@if($status == 'approved')
-    <span class="status approved">Approved</span>
+    function closeProfile() {
+        document.getElementById('studentDrawer').classList.remove('active');
+        document.getElementById('drawerOverlay').style.display = 'none';
+    }
+</script>
 
-@elseif($status == 'rejected')
-    <span class="status rejected">Rejected</span>
-
-@else
-    <span class="status pending">Pending</span>
-@endif
-
-<br><br>
-
-@if($status == 'pending')
-
-<form action="{{ route('company.accept', $application->id) }}" method="POST" style="display:inline;">
-@csrf
-<button class="btn btn-accept">✔ Approve</button>
-</form>
-
-<form action="{{ route('company.reject', $application->id) }}" method="POST" style="display:inline;">
-@csrf
-<button class="btn btn-reject">✖ Reject</button>
-</form>
-
-@endif
-
-</div>
-
-@empty
-<p>No applications yet.</p>
-@endforelse
-
-</div>
-
-@endsection

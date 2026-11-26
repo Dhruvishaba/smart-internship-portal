@@ -58,12 +58,8 @@ Route::middleware(['auth'])->prefix('student')->group(function () {
 
     Route::get('/internship/{id}', [InternshipController::class, 'show'])
         ->name('internship.show');
+Route::get('/check-skill/{id}', [StudentController::class, 'checkSkill']);
 
-    // skill check (AJAX)
-    Route::get('/check-skill/{id}', [StudentController::class, 'checkSkill'])
-        ->name('student.check.skill');
-
-    // apply internship
     Route::post('/apply/{id}', [StudentController::class, 'apply'])
         ->name('student.apply');
 
@@ -101,8 +97,8 @@ Route::middleware(['auth'])->prefix('company')->group(function () {
     Route::get('/applications', [ApplicationController::class, 'companyApplications'])
         ->name('company.applications');
 
-   Route::post('/company/accept/{id}', [CompanyController::class, 'accept'])->name('company.accept');
-Route::post('/company/reject/{id}', [CompanyController::class, 'reject'])->name('company.reject');
+    Route::post('/company/accept/{id}', [CompanyController::class, 'accept'])->name('company.accept');
+    Route::post('/company/reject/{id}', [CompanyController::class, 'reject'])->name('company.reject');
 });
 
 
@@ -117,24 +113,46 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])
         ->name('admin.dashboard');
 
+    // STUDENTS
     Route::get('/students', [AdminController::class,'students'])
         ->name('admin.students');
 
     Route::get('/delete-student/{id}', [AdminController::class,'deleteStudent'])
         ->name('admin.delete.student');
 
+    // 🔴 Deactivate Student
+    Route::get('/student/deactivate/{id}', [AdminController::class,'deactivateStudent'])
+        ->name('admin.student.deactivate');
+
+    // 🟢 Activate Student
+    Route::get('/student/activate/{id}', [AdminController::class,'activateStudent'])
+        ->name('admin.student.activate');
+
+
+    // COMPANIES
     Route::get('/companies', [AdminController::class, 'companies'])
         ->name('admin.companies');
 
     Route::get('/delete-company/{id}', [AdminController::class, 'deleteCompany'])
         ->name('admin.delete.company');
 
+    // 🔴 Deactivate Company
+    Route::get('/company/deactivate/{id}', [AdminController::class,'deactivateCompany'])
+        ->name('admin.company.deactivate');
+
+    // 🟢 Activate Company
+    Route::get('/company/activate/{id}', [AdminController::class,'activateCompany'])
+        ->name('admin.company.activate');
+
+
+    // INTERNSHIPS
     Route::get('/internships', [AdminController::class, 'internships'])
         ->name('admin.internships');
 
     Route::get('/delete-internship/{id}', [AdminController::class,'deleteInternship'])
         ->name('admin.delete.internship');
 
+    // APPLICATIONS
     Route::get('/applications', [AdminController::class, 'applications'])
         ->name('admin.applications');
 
@@ -147,6 +165,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::delete('/applications/delete/{id}', [AdminController::class, 'deleteApplication'])
         ->name('admin.application.delete');
 
+    // REPORTS
     Route::get('/reports', [AdminController::class, 'reports'])
         ->name('admin.reports');
 

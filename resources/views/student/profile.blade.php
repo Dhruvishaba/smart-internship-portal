@@ -2,33 +2,30 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --bg:        #f0f4fa;
-    --surface:   #ffffff;
-    --surface2:  #f7f9fc;
-    --border:    #e2e8f4;
-    --accent:    #3b7ef8;
-    --accent2:   #6c4ef7;
-    --accent-lt: #eef3ff;
-    --success:   #16a34a;
-    --danger:    #dc2626;
-    --text:      #111827;
-    --muted:     #6b7280;
-    --label:     #374151;
+    --bg:         #f0f4fa;
+    --surface:    #ffffff;
+    --surface2:   #f7f9fc;
+    --border:     #e2e8f4;
+    --accent:     #3b7ef8;
+    --accent2:    #6c4ef7;
+    --accent-lt:  #eef3ff;
+    --success:    #16a34a;
+    --danger:     #dc2626;
+    --text:       #111827;
+    --muted:      #6b7280;
+    --label:      #374151;
 
     /* UPDATED FONTS */
     --font-head: 'Poppins', sans-serif;
     --font-body: 'Inter', sans-serif;
 
-    --radius:    14px;
-    --radius-sm: 8px;
-    --shadow:    0 4px 24px rgba(59,126,248,0.08), 0 1px 4px rgba(0,0,0,0.06);
+    --radius:     14px;
+    --radius-sm:  8px;
+    --shadow:     0 4px 24px rgba(59,126,248,0.08), 0 1px 4px rgba(0,0,0,0.06);
     --shadow-hover: 0 8px 32px rgba(59,126,248,0.14), 0 2px 8px rgba(0,0,0,0.07);
 }
 
@@ -37,7 +34,6 @@ body {
     font-family: var(--font-body);
     color: var(--text);
     min-height: 100vh;
-    padding: 40px 20px 80px;
 }
 
 body::before {
@@ -187,7 +183,6 @@ label i, .field-label i { color: var(--accent); font-size: 11px; }
 select.form-control {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 13px center;
     padding-right: 38px;
@@ -446,7 +441,6 @@ textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.65; 
 
     {{-- Page Header --}}
     <div class="page-header">
-        <div class="page-header-icon"><i class="fa-solid fa-user-graduate"></i></div>
         <div>
             <h2>Student Profile</h2>
             <p>Keep your academic and personal information up to date</p>
@@ -462,8 +456,6 @@ textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.65; 
 
     <form method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data">
     @csrf
-
-    
 
         {{-- ── PERSONAL DETAILS ── --}}
         <div class="card">
@@ -505,24 +497,25 @@ textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.65; 
 
             </div>
         </div>
-{{-- ── SKILLS ── --}}
-<div class="card">
-    <div class="section-title">
-        <i class="fa-solid fa-code"></i> Skills
-    </div>
 
-    <div class="field-group">
-        <label>
-            <i class="fa-solid fa-tags"></i> Technical Skills
-        </label>
+        {{-- ── SKILLS ── --}}
+        <div class="card">
+            <div class="section-title">
+                <i class="fa-solid fa-code"></i> Skills
+            </div>
 
-      <textarea name="skills" 
-class="form-control" 
-rows="4"
-placeholder="e.g. Laravel, PHP, MySQL, JavaScript, React">{{ 
-isset($profile->skills) ? $profile->skills : '' }}</textarea>
-    </div>
-</div>
+            <div class="field-group">
+                <label>
+                    <i class="fa-solid fa-tags"></i> Technical Skills
+                </label>
+
+              <textarea name="skills" 
+                class="form-control" 
+                rows="4"
+                placeholder="e.g. Laravel, PHP, MySQL, JavaScript, React">{{ 
+                isset($profile->skills) ? $profile->skills : '' }}</textarea>
+            </div>
+        </div>
     
         {{-- ── EDUCATIONAL DETAILS ── --}}
         <div class="card">
@@ -591,10 +584,10 @@ isset($profile->skills) ? $profile->skills : '' }}</textarea>
 
             <div id="certificationContainer">
               @php
-    $certifications = !empty($profile->certifications)
-        ? explode(',', $profile->certifications)
-        : [''];
-@endphp
+                $certifications = !empty($profile->certifications)
+                    ? explode(',', $profile->certifications)
+                    : [''];
+              @endphp
 
                 @foreach($certifications as $index => $cert)
                 <div class="cert-item">
@@ -621,7 +614,6 @@ isset($profile->skills) ? $profile->skills : '' }}</textarea>
                     <label><i class="fa-solid fa-chalkboard-user"></i> Seminars Attended</label>
                     <textarea name="seminars" class="form-control" rows="4" placeholder="List seminars, workshops, or events attended">{{ $profile->seminars ?? '' }}</textarea>
                 </div>
-             
             </div>
 
             <div class="field-group">
@@ -671,7 +663,6 @@ isset($profile->skills) ? $profile->skills : '' }}</textarea>
 </div>
 
 <script>
-
 function previewPhoto(event) {
     const reader = new FileReader();
     reader.onload = function(){
@@ -680,7 +671,6 @@ function previewPhoto(event) {
     };
     reader.readAsDataURL(event.target.files[0]);
 }
-
 
 document.addEventListener('DOMContentLoaded', function () {
     const yesRadio = document.querySelector('input[name="is_interning"][value="1"]');

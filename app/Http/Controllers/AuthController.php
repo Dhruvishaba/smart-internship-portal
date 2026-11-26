@@ -33,7 +33,8 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => $request->role,
+            'status' => 'active' // ✅ default active
         ]);
 
         return redirect('/login')->with('success', 'Registration Successful. Please Login.');
@@ -62,6 +63,13 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
 
             $user = Auth::user();
+
+            // 🔴 CHECK IF USER IS DEACTIVATED
+            if ($user->status == 'inactive') {
+                Auth::logout(); // logout immediately
+
+                return back()->with('error', 'Your account is deactivated by admin. Please contact admin.');
+            }
 
             // STUDENT
             if ($user->role == 'student') {

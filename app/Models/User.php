@@ -17,7 +17,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role' // student, company, admin
+        'role',
+        'status' // ✅ added
     ];
 
     /**
@@ -71,5 +72,11 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    // 🔥 NEW: Check Active Status
+    public function isActive()
+    {
+        return $this->status === 'active';
     }
 }

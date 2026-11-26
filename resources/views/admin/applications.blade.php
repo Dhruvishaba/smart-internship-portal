@@ -33,26 +33,6 @@
 
         <td>
 
-            <!-- Approve -->
-            <form action="{{ route('admin.application.approve',$app->id) }}" 
-                  method="POST" 
-                  style="display:inline;">
-                @csrf
-                <button style="background:green;color:white;border:none;padding:5px 10px;">
-                    Approve
-                </button>
-            </form>
-
-            <!-- Reject -->
-            <form action="{{ route('admin.application.reject',$app->id) }}" 
-                  method="POST" 
-                  style="display:inline;">
-                @csrf
-                <button style="background:orange;color:white;border:none;padding:5px 10px;">
-                    Reject
-                </button>
-            </form>
-
             <!-- Delete -->
             <form action="{{ route('admin.application.delete',$app->id) }}" 
                   method="POST" 

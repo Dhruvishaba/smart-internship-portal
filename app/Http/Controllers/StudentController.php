@@ -32,7 +32,11 @@ class StudentController extends Controller
                 ->with('error', 'Please complete your profile first');
         }
 
+        // ✅ ONLY ACTIVE COMPANIES
         $internships = Internship::with('company')
+            ->whereHas('company.user', function ($q) {
+                $q->where('status', 'active');
+            })
             ->whereDate('application_deadline', '>=', Carbon::today())
             ->where('spots_available', '>', 0)
             ->latest()
@@ -57,7 +61,7 @@ class StudentController extends Controller
     }
 
     // =========================
-    // UPDATE PROFILE (FIXED)
+    // UPDATE PROFILE
     // =========================
     public function updateProfile(Request $request)
     {
@@ -69,22 +73,18 @@ class StudentController extends Controller
 
         $user = Auth::user();
 
-        // Update user table
         $user->name = $request->name;
         $user->email = $request->email;
         $user->save();
 
-        // ✅ Skills (textarea → string normalize)
         $skills = $request->skills
             ? implode(',', array_map('trim', explode(',', strtolower($request->skills))))
             : null;
 
-        // ✅ Certifications (ARRAY → STRING)
         $certifications = is_array($request->certifications)
             ? implode(',', array_filter($request->certifications))
             : null;
 
-        // ✅ Internship position logic
         $internPosition = $request->is_interning == 1
             ? $request->intern_position
             : null;
@@ -99,29 +99,24 @@ class StudentController extends Controller
                 'dob' => $request->dob,
                 'skills' => $skills,
 
-                // ===== SSC =====
                 'ssc_medium' => $request->ssc_medium,
                 'ssc_school' => $request->ssc_school,
                 'ssc_board' => $request->ssc_board,
                 'ssc_percentage' => $request->ssc_percentage,
 
-                // ===== HSC =====
                 'hsc_medium' => $request->hsc_medium,
                 'hsc_school' => $request->hsc_school,
                 'hsc_board' => $request->hsc_board,
                 'hsc_percentage' => $request->hsc_percentage,
 
-                // ===== Current =====
                 'current_program' => $request->current_program,
                 'current_semester' => $request->current_semester,
                 'current_cgpa' => $request->current_cgpa,
 
-                // ✅ FIXED FIELDS
                 'certifications' => $certifications,
                 'seminars' => $request->seminars,
                 'achievements' => $request->achievements,
 
-                // ===== Internship =====
                 'is_interning' => $request->is_interning,
                 'intern_position' => $internPosition,
             ]
@@ -139,11 +134,17 @@ class StudentController extends Controller
 
         $student = Student::where('user_id', Auth::id())->first();
 
+        // ✅ ONLY ACTIVE COMPANIES
         $internships = Internship::with('company')
+            ->whereHas('company.user', function ($q) {
+                $q->where('status', 'active');
+            })
             ->where(function ($query) use ($search) {
-                $query->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('required_skills', 'like', '%' . $search . '%')
-                    ->orWhere('address', 'like', '%' . $search . '%');
+                $query->where('required_skills', 'like', '%' . $search . '%')
+                    ->orWhere('address', 'like', '%' . $search . '%')
+                    ->orWhereHas('company', function ($q) use ($search) {
+                        $q->where('company_name', 'like', '%' . $search . '%');
+                    });
             })
             ->whereDate('application_deadline', '>=', Carbon::today())
             ->where('spots_available', '>', 0)
@@ -157,68 +158,35 @@ class StudentController extends Controller
     }
 
     // =========================
-    // CHECK SKILL
-    // =========================
-    public function checkSkill($id)
-    {
-        $student = Student::where('user_id', Auth::id())->first();
-        $internship = Internship::find($id);
-
-        if (!$student || !$internship) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Internship not found'
-            ]);
-        }
-
-        $studentSkills = $student->skills
-            ? array_map('trim', explode(',', strtolower($student->skills)))
-            : [];
-
-        $internshipSkills = $internship->required_skills
-            ? array_map('trim', explode(',', strtolower($internship->required_skills)))
-            : [];
-
-        $matched = array_intersect($studentSkills, $internshipSkills);
-        $missing = array_diff($internshipSkills, $studentSkills);
-
-        $matchPercent = count($internshipSkills) > 0
-            ? (count($matched) / count($internshipSkills)) * 100
-            : 0;
-
-        if ($matchPercent >= 70) {
-            return response()->json([
-                'status' => 'success',
-                'match' => $matchPercent
-            ]);
-        } else {
-            return response()->json([
-                'status' => 'fail',
-                'message' => 'Skill not match. Required skills: ' . implode(', ', $missing)
-            ]);
-        }
-    }
-
-    // =========================
     // APPLY
     // =========================
-    public function apply($id)
-    {
-        $student = Student::where('user_id', Auth::id())->first();
-        $internship = Internship::find($id);
+   public function apply($id)
+{
+    $student = Student::where('user_id', Auth::id())->first();
+    $internship = Internship::find($id);
 
-        if (!$student || !$internship) {
-            return back()->with('error', 'Internship not found');
-        }
-
-        Application::create([
-            'student_id' => $student->id,
-            'internship_id' => $internship->id,
-            'status' => 'pending'
-        ]);
-
-        return back()->with('success', 'Application submitted successfully');
+    if (!$student || !$internship) {
+        return back()->with('error', 'Internship not found');
     }
+
+    $studentSkills = array_map('trim', explode(',', strtolower($student->skills)));
+    $requiredSkills = array_map('trim', explode(',', strtolower($internship->required_skills)));
+
+    $matched = array_intersect($studentSkills, $requiredSkills);
+    $matchPercent = (count($matched) / count($requiredSkills)) * 100;
+
+    if ($matchPercent < 70) {
+        return back()->with('error', 'Only ' . round($matchPercent,2) . '% match. Minimum 70% required.');
+    }
+
+    Application::create([
+        'student_id' => $student->id,
+        'internship_id' => $internship->id,
+        'status' => 'pending'
+    ]);
+
+    return back()->with('success', 'Application submitted successfully');
+}
 
     // =========================
     // MY APPLICATIONS
@@ -234,4 +202,53 @@ class StudentController extends Controller
 
         return view('student.my_applications', compact('applications'));
     }
+    // =========================
+// CHECK SKILL (AJAX)
+// =========================
+public function checkSkill($id)
+{
+    $student = Student::where('user_id', Auth::id())->first();
+    $internship = Internship::find($id);
+
+    if (!$student || !$internship) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Data not found'
+        ]);
+    }
+
+    // Convert skills to array
+    $studentSkills = $student->skills
+        ? array_map('trim', explode(',', strtolower($student->skills)))
+        : [];
+
+    $requiredSkills = $internship->required_skills
+        ? array_map('trim', explode(',', strtolower($internship->required_skills)))
+        : [];
+
+    if (count($requiredSkills) == 0) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No required skills defined'
+        ]);
+    }
+
+    // Count matched skills
+    $matched = array_intersect($studentSkills, $requiredSkills);
+
+    $matchPercent = (count($matched) / count($requiredSkills)) * 100;
+
+    if ($matchPercent >= 70) {
+        return response()->json([
+            'status' => 'success',
+            'match' => round($matchPercent, 2)
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'error',
+        'match' => round($matchPercent, 2),
+        'message' => 'Only ' . round($matchPercent, 2) . '% skills matched. Minimum 70% required.'
+    ]);
+}
 }
